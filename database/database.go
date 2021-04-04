@@ -17,7 +17,20 @@ func ConnectToDatabase(user, password, dbName string) (*Database,error){
 	db, err := sql.Open("postgres",payload)
 	if err != nil {return nil,err}
 	
+	err = CreateExpensesTable(db)
+	
+	if err != nil {return nil,err}
+	
 	return &Database{db},nil
+}
+
+func CreateExpensesTable(db *sql.DB) error{
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS expenses (
+							id		SERIAL,
+							title	TEXT NOT NULL,
+							cost	NUMERIC(10,2) NOT NULL
+						)`)
+	return err
 }
 
 func (db *Database) CreateExpense(title string, cost float64) (*models.Expense, error) {
