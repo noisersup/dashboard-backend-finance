@@ -1,9 +1,7 @@
 package models
 
-import "gorm.io/gorm"
-
 type Group struct {
-	gorm.Model
+	Id 				int
 	Title 			string
 	MaxExpenses		int64
 	CurrExpenses	int64
@@ -11,9 +9,9 @@ type Group struct {
 }
 
 type Expense struct {
-	gorm.Model
+	Id 		int
 	Title	string
-	Cost	Currency
+	Cost	float64
 }
 
 
