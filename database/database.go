@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/noisersup/dashboard-backend-finance/models"
 )
 
 type Database struct{
@@ -16,4 +18,16 @@ func ConnectToDatabase(user, password, dbName string) (*Database,error){
 	if err != nil {return nil,err}
 	
 	return &Database{db},nil
+}
+
+func (db *Database) CreateExpense(title string, cost float64) (*models.Expense, error) {
+	var expense models.Expense
+	expense.Title = title
+	expense.Cost = cost
+
+	err := db.db.QueryRow("INSERT INTO expenses(title, cost) VALUES ($1,$2) RETURNING ID",
+						  title,cost).Scan(&expense.Id)
+	if err != nil {return nil,err}
+
+	return &expense,nil
 }
