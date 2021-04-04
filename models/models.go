@@ -13,9 +13,3 @@ type Expense struct {
 	Title	string
 	Cost	float64
 }
-
-
-type Currency struct {
-	First 	int64
-	Second	int8
-}
