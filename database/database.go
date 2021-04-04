@@ -30,8 +30,8 @@ func CreateGroupsTable(db *sql.DB) error{
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS groups (
 							id				SERIAL,
 							title			TEXT NOT NULL UNIQUE,
-							maxExpenses		NUMERIC(10,2) NOT NULL,
-							currExpenses	NUMERIC(10,2) NOT NULL,
+							max_expenses		NUMERIC(10,2) NOT NULL,
+							curr_expenses	NUMERIC(10,2) NOT NULL DEFAULT 0.00,
 							PRIMARY KEY (id)
 						)`)
 	return err
@@ -59,4 +59,18 @@ func (db *Database) CreateExpense(title string,cost float64, group int) (*models
 	if err != nil {return nil,err}
 
 	return &expense,nil
+}
+
+func (db *Database) CreateGroup(title string,maxExpenses float64,) (*models.Group, error) {
+	group := models.Group{
+		Title: title,
+		MaxExpenses: maxExpenses,
+	}
+	
+	err := db.db.QueryRow("INSERT INTO groups(title, max_expenses) VALUES ($1,$2) RETURNING ID",
+						  title,maxExpenses).Scan(&group.Id)
+
+	if err != nil {return nil,err}
+
+	return &group,nil
 }

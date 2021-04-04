@@ -3,8 +3,8 @@ package models
 type Group struct {
 	Id 				int
 	Title 			string
-	MaxExpenses		int64
-	CurrExpenses	int64
+	MaxExpenses		float64
+	CurrExpenses	float64
 	Expenses		[]Expense
 }
 
