@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/noisersup/dashboard-backend-finance/models"
 )
@@ -13,13 +14,17 @@ type Database struct{
 
 func ConnectToDatabase(user, password, dbName string) (*Database,error){
 	payload := fmt.Sprintf("user=%s password=%s dbname=%s",user,password,dbName)
-
+	
+	log.Printf("Connecting to database")
 	db, err := sql.Open("postgres",payload)
 	if err != nil {return nil,err}
-	
+	log.Printf("Connected to database")
+
+	log.Printf("Checking for groups table")
 	err = CreateGroupsTable(db)
 	if err != nil {return nil,err}
-	
+
+	log.Printf("Checking for expenses table")	
 	err = CreateExpensesTable(db)
 	if err != nil {return nil,err}
 	
