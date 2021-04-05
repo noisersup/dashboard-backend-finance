@@ -66,11 +66,45 @@ func (db *Database) CreateGroup(title string,maxExpenses float64,) (*models.Grou
 		Title: title,
 		MaxExpenses: maxExpenses,
 	}
-	
+
 	err := db.db.QueryRow("INSERT INTO groups(title, max_expenses) VALUES ($1,$2) RETURNING ID",
 						  title,maxExpenses).Scan(&group.Id)
 
 	if err != nil {return nil,err}
 
 	return &group,nil
+}
+
+func (db *Database) GetGroups() ([]models.Group,error){
+	var groups []models.Group
+	
+	rows, err := db.db.Query("SELECT * from groups")
+	if err != nil {return nil,err}
+
+	defer rows.Close()
+	
+	for rows.Next() {
+		var group models.Group
+		if err := rows.Scan(&group.Id,&group.Title,&group.MaxExpenses,&group.CurrExpenses) ; err != nil {
+			return nil, err
+		}
+		
+		// group.Expenses,err = db.GetExpensesInGroup(group.Id)
+		if err != nil { return nil, err }
+
+		groups = append(groups, group)
+	}
+}
+
+func (db *Database) GetExpensesInGroup(id int) ([]models.Expense,error){
+	rows, err := db.db.Query("SELECT * from expenses WHERE group_id = $1",id)
+	if err != nil {return nil,err}
+	defer rows.Close()
+
+	var expenses []models.Expense
+
+	for rows.Next() {
+		var expense models.Expense
+		if err := rows.Scan(&expense.Id,&expense.Title,&expense.Cost) 
+	}
 }
