@@ -89,15 +89,16 @@ func (db *Database) GetGroups() ([]models.Group,error){
 			return nil, err
 		}
 		
-		// group.Expenses,err = db.GetExpensesInGroup(group.Id)
+		group.Expenses,err = db.GetExpensesInGroup(group.Id)
 		if err != nil { return nil, err }
 
 		groups = append(groups, group)
 	}
+	return groups, nil
 }
 
 func (db *Database) GetExpensesInGroup(id int) ([]models.Expense,error){
-	rows, err := db.db.Query("SELECT * from expenses WHERE group_id = $1",id)
+	rows, err := db.db.Query("SELECT (id,title,cost) from expenses WHERE group_id = $1",id)
 	if err != nil {return nil,err}
 	defer rows.Close()
 
@@ -105,6 +106,10 @@ func (db *Database) GetExpensesInGroup(id int) ([]models.Expense,error){
 
 	for rows.Next() {
 		var expense models.Expense
-		if err := rows.Scan(&expense.Id,&expense.Title,&expense.Cost) 
+		if err := rows.Scan(&expense.Id,&expense.Title,&expense.Cost) ; err != nil {
+			return nil, err
+		}
+		expenses = append(expenses, expense)
 	}
+	return expenses, nil
 }
