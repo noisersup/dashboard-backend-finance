@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	_ "github.com/lib/pq"
 	"github.com/noisersup/dashboard-backend-finance/models"
 )
 
@@ -13,7 +14,7 @@ type Database struct{
 }
 
 func ConnectToDatabase(user, password, dbName string) (*Database,error){
-	payload := fmt.Sprintf("user=%s password=%s dbname=%s",user,password,dbName)
+	payload := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",user,password,dbName)
 	
 	log.Printf("Connecting to database")
 	db, err := sql.Open("postgres",payload)
