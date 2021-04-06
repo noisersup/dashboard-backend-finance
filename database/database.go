@@ -119,3 +119,11 @@ func (db *Database) GetExpensesInGroup(id int) ([]models.Expense,error){
 	}
 	return expenses, nil
 }
+
+func (db *Database) ResetDatabase() error {
+	if _,err := db.db.Exec("DELETE FROM expenses") ; err != nil { return err}
+	if _,err := db.db.Exec("DELETE FROM groups") ; err != nil { return err}
+	if _,err := db.db.Exec("ALTER SEQUENCE expenses_id_seq RESTART WITH 1") ; err != nil { return err}
+	if _,err := db.db.Exec("ALTER SEQUENCE groups_id_seq RESTART WITH 1") ; err != nil { return err}
+	return nil
+} 
