@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"reflect"
 	"testing"
 
 	"github.com/noisersup/dashboard-backend-finance/database"
+	"github.com/noisersup/dashboard-backend-finance/models"
 )
 
 type TestVars struct{
@@ -39,4 +41,45 @@ func TestLoadConfig(t *testing.T){
 		   t.Fatalf(`Data provided by test file invalid: ("%s", "%s", "%s")`,
 		   			config.Username,config.Database,config.Password)
 	}
+}
+
+func TestCreateRead(t *testing.T){
+	expectedGroup := models.Group{
+		Id: 1,
+		Title: "testGroup",
+		MaxExpenses: 100.01,
+		CurrExpenses: 0.00,
+	}
+
+	group, err := test.Db.CreateGroup(expectedGroup.Title,expectedGroup.MaxExpenses)
+	if err != nil { t.Fatal(err) }
+
+	exp := getMapFromStruct(expectedGroup)
+	score := getMapFromStruct(*group)
+
+	if len(exp) != len(score) {
+		t.Errorf("Database record has a different number of columns. \nExpected: %v \nGot: %v",exp,score)
+	}
+
+	if expectedGroup.Id != group.Id {t.Errorf("Group id does not match expected \nExpected: %d Got: %d",
+	expectedGroup.Id,group.Id)}
+
+	if expectedGroup.Title != group.Title {t.Errorf("Group title does not match expected \nExpected: %s Got: %s",
+	expectedGroup.Title,group.Title)}
+
+	if expectedGroup.MaxExpenses != group.MaxExpenses {t.Errorf("Group MaxExpenses does not match expected \nExpected: %f Got: %f",
+	expectedGroup.MaxExpenses,group.MaxExpenses)}
+
+	if expectedGroup.CurrExpenses != group.CurrExpenses {t.Errorf("Group CurrExpenses does not match expected \nExpected: %f Got: %f",
+	expectedGroup.CurrExpenses,group.CurrExpenses)}
+}
+
+func getMapFromStruct(inpStruct interface{}) []interface{} {
+	val := reflect.ValueOf(inpStruct)
+	expValues := make([]interface{}, val.NumField())
+
+	for i := 0; i < val.NumField(); i++ {
+		expValues[i] = val.Field(i).Interface()
+	}
+	return expValues
 }
