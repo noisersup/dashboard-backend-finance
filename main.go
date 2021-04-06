@@ -36,7 +36,7 @@ func main(){
 	}
 	
 	_,err = database.ConnectToDatabase(config.username,config.password,config.database)
-	if err != nil {u.Err("Databse Error",err)}
+	if err != nil {log.Fatal(u.Err("Database Error",err))}
 }
 
 func loadConfig(jsonFile string) (DbConfig, error){
