@@ -12,9 +12,9 @@ import (
 )
 
 type DbConfig struct{
-	username	string
-	password	string
-	database	string
+	Username	string `json:"username"`
+	Password	string `json:"password"`
+	Database	string `json:"database"`
 }
 
 func main(){
@@ -30,12 +30,12 @@ func main(){
 		config, err = loadConfig("config/database.json")
 		if err != nil {log.Fatal(u.Err("Config file error",err))}
 	}else{
-		config.database = *dbPtr
-		config.username = *userPtr
-		config.password = *passwdPtr
+		config.Database = *dbPtr
+		config.Username = *userPtr
+		config.Password = *passwdPtr
 	}
 	
-	_,err = database.ConnectToDatabase(config.username,config.password,config.database)
+	_,err = database.ConnectToDatabase(config.Username,config.Password,config.Database)
 	if err != nil {log.Fatal(u.Err("Database Error",err))}
 }
 
