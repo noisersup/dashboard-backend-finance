@@ -43,7 +43,7 @@ func TestLoadConfig(t *testing.T){
 	}
 }
 
-func TestCreateRead(t *testing.T){
+func TestCreateReadGroups(t *testing.T){
 	expectedGroup := models.Group{
 		Id: 1,
 		Title: "testGroup",
@@ -73,6 +73,34 @@ func TestCreateRead(t *testing.T){
 	if expectedGroup.CurrExpenses != group.CurrExpenses {t.Errorf("Group CurrExpenses does not match expected \nExpected: %f Got: %f",
 	expectedGroup.CurrExpenses,group.CurrExpenses)}
 }
+
+func TestCreateReadExpenses(t *testing.T){
+	expectedExpense := models.Expense{
+		Id: 1,
+		Title: "testExpense",
+		Cost: 100.01,
+	}
+
+	expense, err := test.Db.CreateExpense(expectedExpense.Title,expectedExpense.Cost,1)
+	if err != nil { t.Fatal(err) }
+
+	exp := getMapFromStruct(expectedExpense)
+	score := getMapFromStruct(*expense)
+
+	if len(exp) != len(score) {
+		t.Errorf("Database record has a different number of columns. \nExpected: %v \nGot: %v",exp,score)
+	}
+
+	if expectedExpense.Id != expense.Id {t.Errorf("Expense id does not match expected \nExpected: %d Got: %d",
+	expectedExpense.Id,expense.Id)}
+
+	if expectedExpense.Title != expense.Title {t.Errorf("Expense title does not match expected \nExpected: %s Got: %s",
+	expectedExpense.Title,expense.Title)}
+
+	if expectedExpense.Cost != expense.Cost {t.Errorf("Expense Cost does not match expected \nExpected: %f Got: %f",
+	expectedExpense.Cost,expense.Cost)}
+}
+
 
 func getMapFromStruct(inpStruct interface{}) []interface{} {
 	val := reflect.ValueOf(inpStruct)
