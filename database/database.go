@@ -13,8 +13,9 @@ type Database struct{
 	db 	*sql.DB
 }
 
-func ConnectToDatabase(user, password, dbName string) (*Database,error){
-	payload := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",user,password,dbName)
+func ConnectToDatabase(host string ,port int,user, password, dbName string) (*Database,error){
+	payload := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	host, port,user,password,dbName)
 	
 	log.Printf("Connecting to database")
 	db, err := sql.Open("postgres",payload)

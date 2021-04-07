@@ -1,4 +1,6 @@
 {
+    "address": "111.111.111.111",
+    "port": 1111,
     "username": "usernameTest",
     "database": "databaseTest",
     "password": "passwordTest"

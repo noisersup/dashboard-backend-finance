@@ -12,12 +12,16 @@ import (
 )
 
 type DbConfig struct{
+	Address		string `json:"address"`
+	Port		int    `json:"port"`
 	Username	string `json:"username"`
 	Password	string `json:"password"`
 	Database	string `json:"database"`
 }
 
 func main(){
+	addrPtr := flag.String("address","127.0.0.1","Specify ip address of postgres database.")
+	portPtr := flag.Int("port",5432,"Specify port of postgres database.")
 	userPtr := flag.String("user","","Specify username to postgres database.")
 	passwdPtr := flag.String("passwd","","Specify passwd to postgres database.")
 	dbPtr := flag.String("database","","Specify name of postgres database.")
@@ -30,12 +34,14 @@ func main(){
 		config, err = loadConfig("config/database.json")
 		if err != nil {log.Fatal(u.Err("Config file error",err))}
 	}else{
+		config.Address = *addrPtr
+		config.Port = *portPtr
 		config.Database = *dbPtr
 		config.Username = *userPtr
 		config.Password = *passwdPtr
 	}
 	
-	db,err := database.ConnectToDatabase(config.Username,config.Password,config.Database)
+	db,err := database.ConnectToDatabase(config.Address,config.Port,config.Username,config.Password,config.Database)
 	if err != nil {log.Fatal(u.Err("Database Error",err))}
 	
 	defer func ()  {

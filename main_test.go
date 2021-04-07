@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 	if err != nil {log.Fatal(err)}
  
 
-	test.Db,err = database.ConnectToDatabase(config.Username,config.Password,config.Database)
+	test.Db,err = database.ConnectToDatabase(config.Address,config.Port,config.Username,config.Password,config.Database)
 	if err != nil {log.Fatal(err)}
 
 	err = test.Db.ResetDatabase()
@@ -35,7 +35,9 @@ func TestLoadConfig(t *testing.T){
 	config,err := loadConfig("config/tests/database.json")
 	if err != nil { t.Fatal(err) }
 
-	if config.Database != "databaseTest" || 
+	if config.Address != "111.111.111.111" ||
+	   config.Port != 1111 || 
+	   config.Database != "databaseTest" ||  
 	   config.Password != "passwordTest" || 
 	   config.Username != "usernameTest" {
 		   t.Fatalf(`Data provided by test file invalid: ("%s", "%s", "%s")`,
