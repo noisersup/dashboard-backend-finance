@@ -35,8 +35,14 @@ func main(){
 		config.Password = *passwdPtr
 	}
 	
-	_,err = database.ConnectToDatabase(config.Username,config.Password,config.Database)
+	db,err := database.ConnectToDatabase(config.Username,config.Password,config.Database)
 	if err != nil {log.Fatal(u.Err("Database Error",err))}
+	
+	defer func ()  {
+		if err := db.CloseDatabase(); err != nil{
+			log.Fatal(u.Err("Closing database error",err))
+		}
+	}()
 }
 
 func loadConfig(jsonFile string) (DbConfig, error){

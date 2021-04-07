@@ -127,3 +127,7 @@ func (db *Database) ResetDatabase() error {
 	if _,err := db.db.Exec("ALTER SEQUENCE groups_id_seq RESTART WITH 1") ; err != nil { return err}
 	return nil
 } 
+
+func (db *Database) CloseDatabase() error{
+	return db.db.Close()
+}
