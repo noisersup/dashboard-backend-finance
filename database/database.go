@@ -105,7 +105,7 @@ func (db *Database) GetGroups() ([]models.Group,error){
 }
 
 func (db *Database) GetExpensesInGroup(id int) ([]models.Expense,error){
-	rows, err := db.db.Query("SELECT (id,title,cost) from expenses WHERE group_id = $1",id)
+	rows, err := db.db.Query("SELECT id,title,cost from expenses WHERE group_id = $1",id)
 	if err != nil {return nil,err}
 	defer rows.Close()
 
