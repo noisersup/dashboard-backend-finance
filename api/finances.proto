@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package api;
+
+option go_package = "./pb";
+
+message Expense {
+    int64 id = 1;
+    string title = 2;
+    float cost = 3;
+}
+
+message Group {
+    int64 id = 1;
+    string title = 2;
+    float maxExpenses = 3;
+    float currExpenses = 4;
+    repeated Expense expenses = 5;
+}
+
+message Groups {
+    repeated Group groups = 1;
+}
+
+service FinanceService {
+    rpc GetGroups(google.protobuf.Empty) returns (Groups) {}
+}
