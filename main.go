@@ -63,10 +63,11 @@ func main(){
 		log.Fatalf("Failed to listen on port 9000: %v",err)
 	}
 	log.Print(lis.Addr())
-	a := api.Api{}
+
+	a := api.InitAPI(db)
 
 	server := grpc.NewServer()
-	pb.RegisterFinanceServiceServer(server,&a)
+	pb.RegisterFinanceServiceServer(server,a)
 
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v",err)
