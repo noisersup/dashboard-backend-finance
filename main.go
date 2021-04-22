@@ -4,11 +4,16 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"strconv"
 
+	"github.com/noisersup/dashboard-backend-finance/api"
+	"github.com/noisersup/dashboard-backend-finance/api/pb"
 	"github.com/noisersup/dashboard-backend-finance/database"
+
 	u "github.com/noisersup/dashboard-backend-finance/utils"
+	"google.golang.org/grpc"
 )
 
 type DbConfig struct{
@@ -21,15 +26,31 @@ type DbConfig struct{
 
 func main(){
 	config := getVars()
-	
+
 	db,err := database.ConnectToDatabase(config.Address,config.Port,config.Username,config.Password,config.Database)
 	if err != nil {log.Fatal(u.Err("Database Error",err))}
-	
+
 	defer func ()  {
 		if err := db.CloseDatabase(); err != nil{
 			log.Fatal(u.Err("Closing database error",err))
 		}
 	}()
+
+
+	lis, err := net.Listen("tcp",":9000")
+	if err != nil {
+		log.Fatalf("Failed to listen on port 9000: %v",err)
+	}
+	log.Print(lis.Addr())
+
+	a := api.InitAPI(db)
+
+	server := grpc.NewServer()
+	pb.RegisterFinanceServiceServer(server,a)
+
+	if err := server.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v",err)
+	}
 }
 
 func getVars() *DbConfig {	

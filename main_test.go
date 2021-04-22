@@ -33,19 +33,19 @@ func TestMain(m *testing.M) {
 func TestLoadConfig(t *testing.T){
 	var config DbConfig
 	config,err := loadConfig("config/tests/database.json")
-	if err != nil { t.Fatal(err) }
+	if err != nil { t.Error(err) }
 
 	if config.Address != "111.111.111.111" ||
 	   config.Port != 1111 || 
 	   config.Database != "databaseTest" ||  
 	   config.Password != "passwordTest" || 
 	   config.Username != "usernameTest" {
-		   t.Fatalf(`Data provided by test file invalid: ("%s", "%s", "%s")`,
+		   t.Errorf(`Data provided by test file invalid: ("%s", "%s", "%s")`,
 		   			config.Username,config.Database,config.Password)
 	}
 }
 
-func TestCreateReadGroups(t *testing.T){
+func TestCreateGroup(t *testing.T){
 	expectedGroup := models.Group{
 		Id: 1,
 		Title: "testGroup",
@@ -54,7 +54,7 @@ func TestCreateReadGroups(t *testing.T){
 	}
 
 	group, err := test.Db.CreateGroup(expectedGroup.Title,expectedGroup.MaxExpenses)
-	if err != nil { t.Fatal(err) }
+	if err != nil { t.Error(err) }
 
 	exp := getMapFromStruct(expectedGroup)
 	score := getMapFromStruct(*group)
@@ -75,6 +75,8 @@ func TestCreateReadGroups(t *testing.T){
 	if expectedGroup.CurrExpenses != group.CurrExpenses {t.Errorf("Group CurrExpenses does not match expected \nExpected: %f Got: %f",
 	expectedGroup.CurrExpenses,group.CurrExpenses)}
 }
+
+
 
 func TestCreateReadExpenses(t *testing.T){
 	expectedExpense := models.Expense{
@@ -103,6 +105,35 @@ func TestCreateReadExpenses(t *testing.T){
 	expectedExpense.Cost,expense.Cost)}
 }
 
+func TestGetGroups(t *testing.T){
+	expectedGroup := models.Group{
+		Id: 1,
+		Title: "testGroup",
+		MaxExpenses: 100.01,
+		CurrExpenses: 0.00,
+	}
+
+	groups, err := test.Db.GetGroups()
+	if err != nil { t.Error(err) }
+
+	if len(groups) != 1 {
+		t.Errorf("Database has different number of records\nExpected: %d\nGot: %d",1,len(groups))
+	}
+	
+	group := groups[0]
+
+	if expectedGroup.Id != group.Id {t.Errorf("Group id does not match expected \nExpected: %d Got: %d",
+	expectedGroup.Id,group.Id)}
+
+	if expectedGroup.Title != group.Title {t.Errorf("Group title does not match expected \nExpected: %s Got: %s",
+	expectedGroup.Title,group.Title)}
+
+	if expectedGroup.MaxExpenses != group.MaxExpenses {t.Errorf("Group MaxExpenses does not match expected \nExpected: %f Got: %f",
+	expectedGroup.MaxExpenses,group.MaxExpenses)}
+
+	if expectedGroup.CurrExpenses != group.CurrExpenses {t.Errorf("Group CurrExpenses does not match expected \nExpected: %f Got: %f",
+	expectedGroup.CurrExpenses,group.CurrExpenses)}
+}
 
 func getMapFromStruct(inpStruct interface{}) []interface{} {
 	val := reflect.ValueOf(inpStruct)
