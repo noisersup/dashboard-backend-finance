@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/noisersup/dashboard-backend-finance/database"
 	u "github.com/noisersup/dashboard-backend-finance/utils"
@@ -20,26 +20,7 @@ type DbConfig struct{
 }
 
 func main(){
-	addrPtr := flag.String("address","127.0.0.1","Specify ip address of postgres database.")
-	portPtr := flag.Int("port",5432,"Specify port of postgres database.")
-	userPtr := flag.String("user","","Specify username to postgres database.")
-	passwdPtr := flag.String("passwd","","Specify passwd to postgres database.")
-	dbPtr := flag.String("database","","Specify name of postgres database.")
-	flag.Parse()
-	
-	var config DbConfig
-	var err error
-	if *userPtr==""||*passwdPtr==""||*dbPtr=="" { 
-		log.Printf("Authentication flags not set, loading passes from config file")
-		config, err = loadConfig("config/database.json")
-		if err != nil {log.Fatal(u.Err("Config file error",err))}
-	}else{
-		config.Address = *addrPtr
-		config.Port = *portPtr
-		config.Database = *dbPtr
-		config.Username = *userPtr
-		config.Password = *passwdPtr
-	}
+	config := getVars()
 	
 	db,err := database.ConnectToDatabase(config.Address,config.Port,config.Username,config.Password,config.Database)
 	if err != nil {log.Fatal(u.Err("Database Error",err))}
@@ -49,6 +30,31 @@ func main(){
 			log.Fatal(u.Err("Closing database error",err))
 		}
 	}()
+}
+
+func getVars() *DbConfig {	
+	var config DbConfig
+
+	config.Address = os.Getenv("DB_ADDRESS")
+	config.Database = os.Getenv("DB_NAME")
+	config.Username = os.Getenv("DB_USERNAME")
+	config.Password = os.Getenv("DB_PASSWORD")
+
+	config.Port,_ = strconv.Atoi(os.Getenv("DB_PORT")) //default: 5432
+
+	if config.Address=="" || config.Database==""||config.Username==""||config.Password==""{ 
+		log.Printf("ENV variables not set, loading config from config file")
+		
+		var err error
+		config, err = loadConfig("config/database.json")
+		if err != nil {log.Fatal(u.Err("Config file error",err))}
+	}
+
+	if config.Port == 0 {
+		log.Print("Port invalid or not provided. Setting default (5432)")
+		config.Port=5432
+	}
+	return &config
 }
 
 func loadConfig(jsonFile string) (DbConfig, error){
