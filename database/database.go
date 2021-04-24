@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 
@@ -57,6 +58,9 @@ func CreateExpensesTable(db *sql.DB) error{
 }
 
 func (db *Database) CreateExpense(title string,cost float64, group int) (*models.Expense, error) {
+	if title == "" || cost <= 0 || group==0 {
+		return nil, errors.New("CreateGroup: title is empty, cost value is not valid or group is not specified.")
+	}
 	var expense models.Expense
 	expense.Title = title
 	expense.Cost = cost
@@ -68,12 +72,14 @@ func (db *Database) CreateExpense(title string,cost float64, group int) (*models
 	return &expense,nil
 }
 
-func (db *Database) CreateGroup(title string,maxExpenses float64,) (*models.Group, error) {
+func (db *Database) CreateGroup(title string,maxExpenses float64) (*models.Group, error) {
+	if title == "" || maxExpenses <= 0 {
+		return nil, errors.New("CreateGroup: title is empty or max expenses value is not valid")
+	}
 	group := models.Group{
 		Title: title,
 		MaxExpenses: maxExpenses,
 	}
-
 	err := db.db.QueryRow("INSERT INTO groups(title, max_expenses) VALUES ($1,$2) RETURNING ID",
 						  title,maxExpenses).Scan(&group.Id)
 
