@@ -19,10 +19,16 @@ message Group {
     repeated Expense expenses = 5;
 }
 
+message PostGroup {
+    string title = 1;
+    float maxExpenses = 2;
+}
+
 message Groups {
     repeated Group groups = 1;
 }
 
 service FinanceService {
     rpc GetGroups(google.protobuf.Empty) returns (Groups) {}
+    rpc CreateGroup(PostGroup) returns (google.protobuf.Empty) {}
 }

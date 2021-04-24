@@ -46,3 +46,8 @@ func (api *Api) GetGroups(ctx context.Context, empty *emptypb.Empty) (*pb.Groups
 
 	return &respGroups,nil
 }
+
+func (api *Api) CreateGroup(ctx context.Context, group *pb.PostGroup) (*emptypb.Empty,error) {
+	_,err := api.db.CreateGroup(group.Title,float64(group.MaxExpenses))
+	return &emptypb.Empty{},err
+}
