@@ -25,17 +25,44 @@ type DbConfig struct {
 	Database string `json:"database"`
 }
 
+func connectDb(config *DbConfig) *database.Database {
+	var db *database.Database
+	for {
+		var err error
+		db, err = database.ConnectToDatabase(config.Address, config.Port, config.Username, config.Password, config.Database, 2*time.Second)
+		if err == nil {
+			break
+		}
+		log.Print(u.Err("Database Error", err))
+	}
+	return db
+}
+
 func main() {
 	config := getVars()
+	var db *database.Database
 
-	db, err := database.ConnectToDatabase(config.Address, config.Port, config.Username, config.Password, config.Database, 2*time.Second)
-	if err != nil {
-		log.Fatal(u.Err("Database Error", err))
-	}
+	db = connectDb(config)
 
 	defer func() {
 		if err := db.CloseDatabase(); err != nil {
 			log.Fatal(u.Err("Closing database error", err))
+		}
+	}()
+
+	restartDb := make(chan bool)
+	alreadyRestarting := false
+
+	// Restart database connection worker
+	go func() {
+		for {
+			<-restartDb
+			if alreadyRestarting {
+				continue
+			}
+			alreadyRestarting = true
+			db = connectDb(config)
+			alreadyRestarting = false
 		}
 	}()
 
@@ -45,7 +72,7 @@ func main() {
 	}
 	log.Print(lis.Addr())
 
-	a := api.InitAPI(db)
+	a := api.InitAPI(db, restartDb)
 
 	server := grpc.NewServer()
 	pb.RegisterFinanceServiceServer(server, a)

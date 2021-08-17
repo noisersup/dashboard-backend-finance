@@ -29,7 +29,7 @@ func ConnectToDatabase(host string, port int, user, password, dbName string, tim
 	payload := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbName)
 
-	log.Printf("Connecting to database")
+	log.Printf("Connecting to database...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -59,20 +59,19 @@ func ConnectToDatabase(host string, port int, user, password, dbName string, tim
 		return nil, ctx.Err()
 	}
 
-	log.Printf("Connected to database")
-
-	log.Printf("Checking for groups table")
+	log.Printf("	Checking for groups table...")
 	err := CreateGroupsTable(db, timeout)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Printf("Checking for expenses table")
+	log.Printf("	Checking for expenses table...")
 	err = CreateExpensesTable(db, timeout)
 	if err != nil {
 		return nil, err
 	}
 
+	log.Printf("Connected to database!")
 	return &Database{db}, nil
 }
 
